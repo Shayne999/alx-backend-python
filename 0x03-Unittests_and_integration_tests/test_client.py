@@ -97,11 +97,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         cls.mock_get.side_effect = side_effect
 
-    @classmethod
-    def tearDownClass(cls):
-        """Tear down class for integration tests"""
-        cls.get_patcher.stop()
-
     class MockResponse:
         """Mock response object for requests.get"""
         def __init__(self, json_data):
@@ -121,7 +116,16 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         )
 
     def test_public_repos_with_license(self):
-        """Test public_repos method with license filter"""
-        client = GithubOrgClient("test_org")
-        repos = client.public_repos(license="apache-2.0")
-        self.assertEqual(repos, self.apache2_repos)
+        """Test public_repos method with license"""
+        test_class = GithubOrgClient("google")
+
+        self.assertEqual(test_class.public_repos(), self.expected_repos)
+        self.assertEqual(test_class.public_repos("XLICENSE"), [])
+        self.assertEqual(test_class.public_repos(
+            "apache-2.0"), self.apache2_repos)
+        self.mock.assert_called()
+
+    @classmethod
+    def tearDownClass(cls):
+        """Tear down class for integration tests"""
+        cls.get_patcher.stop()
